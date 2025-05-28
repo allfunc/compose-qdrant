@@ -11,7 +11,10 @@ services:
       - source: qdrant_config
         target: /qdrant/config/production.yaml
     volumes:
-      - qdrant_storage:/qdrant/storage 
+      - qdrant_storage:/qdrant/storage
+    networks:
+      - default
+      - qdrant-net
 
   ollama:
     image: ollama/ollama
@@ -30,6 +33,9 @@ services:
         ollama run mxbai-embed-large --ctx-size 4096 --batch-size 512 &
         # Keep container running
         tail -f /dev/null
+    networks:
+      - default
+      - qdrant-net
 
 configs:
   qdrant_config:
@@ -39,3 +45,6 @@ configs:
 volumes:
   ollama:
   qdrant_storage:
+
+networks:
+  qdrant-net: {}
