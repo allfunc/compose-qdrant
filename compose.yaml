@@ -1,0 +1,41 @@
+services:
+  # https://blog.darkthread.net/blog/qdrant-w-cs/
+  # https://medium.com/@fadil.parves/qdrant-self-hosted-28a30106e9dd
+  # https://docs.roocode.com/features/experimental/codebase-indexing
+  qdrant:
+    image: qdrant/qdrant:latest
+    restart: always
+    ports:
+      - 6333:6333
+    configs:
+      - source: qdrant_config
+        target: /qdrant/config/production.yaml
+    volumes:
+      - qdrant_storage:/qdrant/storage 
+
+  ollama:
+    image: ollama/ollama
+    restart: always
+    ports:
+      - "10000:11434"
+    volumes:
+      - ollama:/root/.ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        ollama serve &
+        sleep 10
+        ollama pull mxbai-embed-large
+        sleep 10
+        ollama run mxbai-embed-large --ctx-size 4096 --batch-size 512 &
+        # Keep container running
+        tail -f /dev/null
+
+configs:
+  qdrant_config:
+    content: |
+      log_level: INFO
+
+volumes:
+  ollama:
+  qdrant_storage:
