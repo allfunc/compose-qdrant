@@ -20,13 +20,13 @@ services:
     image: ollama/ollama
     restart: always
     ports:
-      - "10000:11434"
+      - "10000:10000"
     volumes:
       - ollama:/root/.ollama
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        ollama serve &
+        OLLAMA_HOST=0.0.0.0:10000 ollama serve &
         sleep 10
         ollama pull mxbai-embed-large
         sleep 10
